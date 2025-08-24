@@ -1,4 +1,3 @@
-// defaults.ts
 import { JobFoundValue, VariantType } from "./shared/types";
 
 export const DEFAULT_JOB_FOUND_VALUE: JobFoundValue = {

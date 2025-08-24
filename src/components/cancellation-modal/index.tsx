@@ -154,7 +154,11 @@ export default function CancelSubscriptionModal({
 
   const onDownSellDecision = async (flag: boolean) => {
     try {
-      await recordDownsellChoice({ cancellationId, accepted: flag });
+      await recordDownsellChoice({
+        cancellationId,
+        accepted: flag,
+        // subscriptionId,
+      });
       setDownSellAccepted(flag);
       setSubSteps(2);
     } catch (err) {
@@ -224,7 +228,7 @@ export default function CancelSubscriptionModal({
       currentStep={modalProps?.showSteps ? displayStep : 0}
       totalSteps={modalProps?.showSteps ? totalSteps : 0}
       closeAlertText={
-        subSteps > 1 && subSteps !== 4
+        subSteps > 1 && subSteps !== 4 && modalProps?.showSteps
           ? "You’re in the middle of filling out this form. If you leave now, your progress will be lost. Do you still want to exit?"
           : ""
       }
