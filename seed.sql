@@ -5,64 +5,144 @@
 -- Enable Row Level Security
 
 -- Create users table
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS USERS (
+  ID UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+  EMAIL TEXT UNIQUE NOT NULL,
+  CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create subscriptions table
-CREATE TABLE IF NOT EXISTS subscriptions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  monthly_price INTEGER NOT NULL, -- Price in USD cents
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'pending_cancellation', 'cancelled')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS SUBSCRIPTIONS (
+  ID UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+  USER_ID UUID REFERENCES USERS(ID) ON DELETE CASCADE,
+  MONTHLY_PRICE INTEGER NOT NULL, -- Price in USD cents
+  STATUS TEXT NOT NULL DEFAULT 'active' CHECK (STATUS IN ('active', 'pending_cancellation', 'cancelled')),
+  CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UPDATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create cancellations table
-CREATE TABLE IF NOT EXISTS cancellations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  subscription_id UUID REFERENCES subscriptions(id) ON DELETE CASCADE,
-  downsell_variant TEXT NOT NULL CHECK (downsell_variant IN ('A', 'B')),
-  reason TEXT,
-  accepted_downsell BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS CANCELLATIONS (
+  ID UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+  USER_ID UUID REFERENCES USERS(ID) ON DELETE CASCADE,
+  SUBSCRIPTION_ID UUID REFERENCES SUBSCRIPTIONS(ID) ON DELETE CASCADE,
+  DOWNSELL_VARIANT TEXT NOT NULL CHECK (DOWNSELL_VARIANT IN ('A', 'B')),
+  REASON TEXT,
+  ACCEPTED_DOWNSELL BOOLEAN DEFAULT FALSE,
+  CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable Row Level Security
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cancellations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE USERS ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE SUBSCRIPTIONS ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE CANCELLATIONS ENABLE ROW LEVEL SECURITY;
 
 -- Basic RLS policies (candidates should enhance these)
-CREATE POLICY "Users can view own data" ON users
-  FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can view own data" ON USERS
+  FOR SELECT USING (AUTH.UID() = ID);
 
-CREATE POLICY "Users can view own subscriptions" ON subscriptions
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view own subscriptions" ON SUBSCRIPTIONS
+  FOR SELECT USING (AUTH.UID() = USER_ID);
 
-CREATE POLICY "Users can update own subscriptions" ON subscriptions
-  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own subscriptions" ON SUBSCRIPTIONS
+  FOR UPDATE USING (AUTH.UID() = USER_ID);
 
-CREATE POLICY "Users can insert own cancellations" ON cancellations
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert own cancellations" ON CANCELLATIONS
+  FOR INSERT WITH CHECK (AUTH.UID() = USER_ID);
 
-CREATE POLICY "Users can view own cancellations" ON cancellations
-  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can view own cancellations" ON CANCELLATIONS
+  FOR SELECT USING (AUTH.UID() = USER_ID);
 
+-- keep updated_at fresh
+CREATE OR REPLACE FUNCTION SET_UPDATED_AT(
+) RETURNS TRIGGER LANGUAGE PLPGSQL AS
+  $$     BEGIN NEW.UPDATED_AT = NOW();
+  RETURN NEW;
+END $$;
+ 
+-- 1) Survey table (child of cancellations)
+CREATE TABLE IF NOT EXISTS cancellation_surveys (
+  cancellation_id UUID PRIMARY KEY REFERENCES cancellations(id) ON DELETE CASCADE,
+  found_through TEXT NOT NULL CHECK (found_through IN ('yes', 'no')),
+  roles_applied TEXT NOT NULL CHECK (roles_applied IN ('0', '1-5', '6-20', '20+')),
+  companies_emailed TEXT NOT NULL CHECK (companies_emailed IN ('0', '1-5', '6-20', '20+')),
+  interviews TEXT NOT NULL CHECK (interviews IN ('0', '1-2', '3-5', '5+')),
+  visa_help TEXT CHECK (visa_help IN ('yes', 'no')),
+  visa_type TEXT,
+  feedback TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+); 
+-- 2) updated_at trigger
+DROP TRIGGER IF EXISTS TRG_CXL_SURVEYS_UPDATED_AT ON CANCELLATION_SURVEYS;
+CREATE TRIGGER TRG_CXL_SURVEYS_UPDATED_AT BEFORE
+UPDATE ON CANCELLATION_SURVEYS FOR EACH ROW EXECUTE FUNCTION SET_UPDATED_AT(
+);
+ 
+-- 3) RLS
+ALTER TABLE CANCELLATION_SURVEYS ENABLE ROW LEVEL SECURITY;
+ 
+-- Owner can read their survey row
+CREATE POLICY "owner read survey" ON CANCELLATION_SURVEYS FOR
+SELECT
+  USING ( EXISTS (
+    SELECT
+      1
+    FROM
+      CANCELLATIONS C
+    WHERE
+      C.ID = CANCELLATION_ID
+      AND C.USER_ID = AUTH.UID()
+  ) );
+ 
+-- Owner can insert their survey row
+CREATE POLICY "owner insert survey" ON CANCELLATION_SURVEYS FOR INSERT WITH CHECK (
+  EXISTS ( SELECT 1 FROM CANCELLATIONS C WHERE C.ID = CANCELLATION_ID AND C.USER_ID = AUTH.UID() )
+);
+ 
+-- Owner can update their survey row
+CREATE POLICY "owner update survey" ON CANCELLATION_SURVEYS FOR
+UPDATE USING (
+  EXISTS ( SELECT 1 FROM CANCELLATIONS C WHERE C.ID = CANCELLATION_ID AND C.USER_ID = AUTH.UID() )
+);
+ 
 -- Seed data
-INSERT INTO users (id, email) VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', 'user1@example.com'),
-  ('550e8400-e29b-41d4-a716-446655440002', 'user2@example.com'),
-  ('550e8400-e29b-41d4-a716-446655440003', 'user3@example.com')
-ON CONFLICT (email) DO NOTHING;
-
+INSERT INTO USERS (
+  ID,
+  EMAIL
+) VALUES (
+  '550e8400-e29b-41d4-a716-446655440001',
+  'user1@example.com'
+), (
+  '550e8400-e29b-41d4-a716-446655440002',
+  'user2@example.com'
+), (
+  '550e8400-e29b-41d4-a716-446655440003',
+  'user3@example.com'
+) ON CONFLICT (
+  EMAIL
+) DO NOTHING;
+ 
 -- Seed subscriptions with $25 and $29 plans
-INSERT INTO subscriptions (user_id, monthly_price, status) VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', 2500, 'active'), -- $25.00
-  ('550e8400-e29b-41d4-a716-446655440002', 2900, 'active'), -- $29.00
-  ('550e8400-e29b-41d4-a716-446655440003', 2500, 'active')  -- $25.00
-ON CONFLICT DO NOTHING; 
+INSERT INTO SUBSCRIPTIONS (
+  USER_ID,
+  MONTHLY_PRICE,
+  STATUS
+) VALUES (
+  '550e8400-e29b-41d4-a716-446655440001',
+  2500,
+  'active'
+), -- $25.00
+(
+  '550e8400-e29b-41d4-a716-446655440002',
+  2900,
+  'active'
+), -- $29.00
+(
+  '550e8400-e29b-41d4-a716-446655440003',
+  2500,
+  'active'
+) -- $25.00
+ON CONFLICT DO NOTHING;

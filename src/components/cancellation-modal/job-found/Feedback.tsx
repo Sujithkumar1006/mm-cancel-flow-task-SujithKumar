@@ -1,17 +1,14 @@
 "use client";
-
-type Step2Props = {
-  value: {
-    feedback: string;
-  };
-  onChange: (field: keyof Step2Props["value"], val: string) => void;
-  onNext?: () => void;
-  onBack?: () => void;
-};
+import { JobFoundFeedbackProps } from "../shared/types";
 
 const MIN_CHARS = 25;
 
-export default function Step2({ value, onChange, onNext, onBack }: Step2Props) {
+export default function Feedback({
+  value,
+  onChange,
+  onNext,
+  onBack,
+}: JobFoundFeedbackProps) {
   const isValid = value.feedback.trim().length >= MIN_CHARS;
 
   return (
@@ -58,7 +55,7 @@ export default function Step2({ value, onChange, onNext, onBack }: Step2Props) {
             onChange={(e) => onChange("feedback", e.target.value)}
             rows={6}
             placeholder="Type your feedback here…"
-            className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+            className="w-full resize-none rounded-lg text-gray-500 border border-gray-300 bg-white px-4 py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
             aria-label="Feedback"
             aria-required="true"
           />

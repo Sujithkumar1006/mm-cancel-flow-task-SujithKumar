@@ -1,18 +1,5 @@
 "use client";
-import { FoundThrough } from "../types";
-
-type Step3Value = {
-  visaHelp: "yes" | "no" | "";
-  visaType: string;
-};
-
-type Step3Props = {
-  source: FoundThrough;
-  value: Step3Value;
-  onChange: (field: keyof Step3Value, val: string) => void;
-  onNext?: () => void;
-  onBack?: () => void;
-};
+import { VisaHelpProps } from "../shared/types";
 
 const COPY: Record<
   string,
@@ -25,7 +12,7 @@ const COPY: Record<
     additionalTitle?: string;
   }
 > = {
-  Yes: {
+  yes: {
     title: "We helped you land the job, now let’s help you secure your visa.",
     subtitle:
       "Is your company providing an immigration lawyer to help with your visa?",
@@ -34,7 +21,7 @@ const COPY: Record<
     noSubQuestion:
       "We can connect you with one of our trusted partners.\nWhich visa would you like to apply for?",
   },
-  No: {
+  no: {
     title: "You landed the job!\nThat’s what we live for.",
     additionalTitle:
       "Even if it wasn’t through Migrate Mate,\nlet us help get your visa sorted.",
@@ -47,13 +34,13 @@ const COPY: Record<
   },
 };
 
-export default function Step3({
+export default function VisaHelp({
   value,
   onChange,
   onNext,
   onBack,
   source,
-}: Step3Props) {
+}: VisaHelpProps) {
   const {
     title,
     subtitle,
@@ -173,7 +160,7 @@ export default function Step3({
             value={visaType}
             onChange={(e) => onChange("visaType", e.target.value)}
             placeholder="Enter visa type…"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm md:text-base outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md border text-gray-600 border-gray-300 px-3 py-2 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500"
           />
         </div>
       )}

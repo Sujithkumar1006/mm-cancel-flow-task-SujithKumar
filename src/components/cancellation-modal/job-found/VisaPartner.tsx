@@ -1,21 +1,17 @@
 "use client";
+import { useEffect } from "react";
 import { VISA_HELP } from "../constant";
-import { FoundThrough } from "../types";
+import { VisaPartnerProps, Contact } from "../shared/types";
 
-type Contact = {
-  name: string;
-  email: string;
-  avatarSrc?: string;
-  blurb?: string;
-};
-
-type FinalStepProps = {
-  variant: FoundThrough;
-  onFinish?: () => void;
-  contact?: Contact;
-};
-
-export default function Step4({ variant, onFinish, contact }: FinalStepProps) {
+export default function VisaPartner({
+  variant,
+  onFinish,
+  contact,
+  setModalProps,
+}: VisaPartnerProps) {
+  useEffect(() => {
+    setModalProps({ title: "Subscription Cancelled" });
+  }, []);
   const showContact = variant === VISA_HELP.YES;
 
   return (

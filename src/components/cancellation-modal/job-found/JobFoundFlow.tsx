@@ -1,31 +1,23 @@
-import Step1 from "./Step1";
-import Step2 from "./Step2";
-import Step3 from "./Step3";
-import Step4 from "./Step4";
-import { DEFAULT_JOB_FOUND_VALUE, FOUND_THROUGH } from "../constant";
-import { SubSteps } from "../types";
+import SurveyEmployment from "./SurveyEmployment";
+import Feedback from "./Feedback";
+import VisaHelp from "./VisaHelp";
+import VisaPartner from "./VisaPartner";
+import { JobFoundFlowProps, SubSteps } from "../shared/types";
 
-type Values = typeof DEFAULT_JOB_FOUND_VALUE;
-
-export default function JobFound({
+export default function JobFoundFlow({
   stepNumber,
   values,
   handleChange,
   handleStepsChange,
-  onCompletion,
+  onFormSubmit,
   onBack,
-}: {
-  stepNumber: number;
-  values: Values;
-  handleChange: (step: keyof Values, field: string, value: string) => void;
-  handleStepsChange: (n: SubSteps) => void;
-  onCompletion: () => void;
-  onBack: () => void;
-}) {
+  onClose,
+  setModalProps,
+}: JobFoundFlowProps) {
   switch (stepNumber) {
     case 1:
       return (
-        <Step1
+        <SurveyEmployment
           value={values.step1}
           onChange={(field, value) => handleChange("step1", field, value)}
           onNext={() => handleStepsChange(2)}
@@ -34,7 +26,7 @@ export default function JobFound({
       );
     case 2:
       return (
-        <Step2
+        <Feedback
           value={values.step2}
           onChange={(field, value) => handleChange("step2", field, value)}
           onNext={() => handleStepsChange(3)}
@@ -43,17 +35,26 @@ export default function JobFound({
       );
     case 3: {
       return (
-        <Step3
+        <VisaHelp
           source={values.step1.foundThrough}
           value={values.step3}
-          onNext={() => handleStepsChange(4)}
+          onNext={() => {
+            onFormSubmit();
+            handleStepsChange(4);
+          }}
           onChange={(field, value) => handleChange("step3", field, value)}
           onBack={onBack}
         />
       );
     }
     case 4:
-      return <Step4 variant={values.step3.visaHelp} onFinish={onCompletion} />;
+      return (
+        <VisaPartner
+          variant={values.step3.visaHelp}
+          onFinish={onClose}
+          setModalProps={setModalProps}
+        />
+      );
     default:
       return null;
   }

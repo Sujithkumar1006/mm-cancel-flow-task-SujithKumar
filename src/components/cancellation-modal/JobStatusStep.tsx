@@ -1,6 +1,5 @@
 import React from "react";
-import { FormSteps } from "./types";
-import Image from "next/image";
+import { FormSteps } from "./shared/types";
 
 interface IJobStatusStep {
   setCurrentStep: (s: FormSteps) => void;

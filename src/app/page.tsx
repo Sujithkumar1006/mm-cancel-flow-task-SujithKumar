@@ -6,7 +6,7 @@ import CancelSubscriptionModal from "../components/cancellation-modal";
 // Mock user data for UI display
 const mockUser = {
   email: "user@example.com",
-  id: "1",
+  id: "550e8400-e29b-41d4-a716-446655440001",
 };
 
 // Mock subscription data for UI display
@@ -17,11 +17,12 @@ const mockSubscriptionData = {
   currentPeriodEnd: new Date(
     Date.now() + 30 * 24 * 60 * 60 * 1000
   ).toISOString(), // 30 days from now
-  monthlyPrice: 25,
+  monthlyPrice: 29,
   isUCStudent: false,
   hasManagedAccess: false,
   managedOrganization: null,
   downsellAccepted: false,
+  id: "04186334-2662-4077-b00f-658475a437c9",
 };
 
 export default function ProfilePage() {
@@ -105,12 +106,6 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <CancelSubscriptionModal
-          isOpen={showCancelModal}
-          onClose={() => setShowCancelModal(false)}
-          onConfirm={handleCancelSubscription}
-          subscriptionEndDate={mockSubscriptionData.currentPeriodEnd}
-        />
       </div>
     );
   }
@@ -407,12 +402,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Cancel Subscription Modal */}
       <CancelSubscriptionModal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleCancelSubscription}
         subscriptionEndDate={mockSubscriptionData.currentPeriodEnd}
+        userId={mockUser.id}
+        subscriptionId={mockSubscriptionData.id}
+        monthlyPrice={mockSubscriptionData.monthlyPrice}
+        acceptedDownsell={mockSubscriptionData.downsellAccepted}
       />
     </div>
   );
