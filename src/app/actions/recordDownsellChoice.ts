@@ -6,11 +6,11 @@ import { supabaseAdmin as supabase } from "@/lib/supabase";
 const schema = z.object({
   cancellationId: z.string().uuid(),
   accepted: z.boolean(),
-  subscriptionId: z.string().uuid(),
+  // subscriptionId: z.string().uuid(),
 });
 
 export async function recordDownsellChoice(input: unknown) {
-  const { cancellationId, accepted, subscriptionId } = schema.parse(input);
+  const { cancellationId, accepted } = schema.parse(input);
 
   const { error } = await supabase
     .from("cancellations")

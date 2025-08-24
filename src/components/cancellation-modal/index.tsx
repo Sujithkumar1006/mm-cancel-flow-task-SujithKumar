@@ -86,7 +86,7 @@ export default function CancelSubscriptionModal({
 
   async function handleSubmitCancellation(formValues: any) {
     try {
-      await saveCancellationSurvey(formValues, subscriptionId);
+      await saveCancellationSurvey({ ...formValues, subscriptionId });
       if (currentStep === FormSteps.NOT_FOUND && cancellationId)
         await updateCancellationReason(
           stillLookingForm.step2.reason,

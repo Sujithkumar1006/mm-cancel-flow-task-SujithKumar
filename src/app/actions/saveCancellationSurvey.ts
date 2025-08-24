@@ -14,14 +14,11 @@ const schema = z.object({
   visaHelp: z.enum(["yes", "no"]).optional(),
   visaType: z.string().trim().max(20).optional(),
   feedback: z.string().max(200).optional(),
+  subscriptionId: z.string().uuid(),
 });
 
-export async function saveCancellationSurvey(
-  input: unknown,
-  subscriptionId: string
-) {
-  console.log("input", input);
-  const payload = schema.parse(input);
+export async function saveCancellationSurvey(input: unknown) {
+  const { subscriptionId, ...payload } = schema.parse(input);
 
   const { error } = await supabase.from("cancellation_surveys").upsert(
     {
