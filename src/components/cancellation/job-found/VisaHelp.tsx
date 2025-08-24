@@ -130,8 +130,8 @@ export default function VisaHelp() {
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="inline-block h-5 w-5 rounded-full border-2 border-gray-600 relative">
-                  <span className="absolute inset-1 rounded-full bg-gray-600" />
+                <span className="inline-block h-5 w-5 rounded-full border-2 border-gray-800 relative bg-gray-800">
+                  <span className="absolute inset-1 rounded-full bg-white" />
                 </span>
                 <span className="text-base text-gray-900 font-medium capitalize">
                   {answer}

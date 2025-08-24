@@ -6,6 +6,7 @@ import {
   DEFAULT_STILL_LOOKING,
   DEFAULT_MODAL_VALUES,
   REASON_FOR_CANCELLATION,
+  VARIANT_VALUES,
 } from "./constant";
 import { useFormState } from "./shared/useFormState";
 import { getStepCounts } from "./shared/flowUtils";
@@ -105,11 +106,21 @@ export function useCancellationFlow(params: Params) {
 
   const goBack = useCallback(() => {
     setSubSteps((prev) => {
-      const next = (prev as number) - 1;
-      if (next === 0) setCurrentStep(FormSteps.NO_SELECTION);
+      let next = (prev as number) - 1;
+      // If we are in Variant A and on the last step, jump back to step 1 directly
+      if (currentStep === FormSteps.NOT_FOUND && variant === VARIANT_VALUES.A) {
+        if (prev >= 2) {
+          next = 1;
+        }
+      }
+
+      if (next === 0) {
+        setCurrentStep(FormSteps.NO_SELECTION);
+      }
+
       return Math.max(1, next) as SubSteps;
     });
-  }, []);
+  }, [currentStep, variant]);
 
   const decideDownsell = useCallback(
     async (accepted: boolean) => {

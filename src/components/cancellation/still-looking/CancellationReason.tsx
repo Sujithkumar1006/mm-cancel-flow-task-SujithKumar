@@ -8,31 +8,31 @@ const MIN_CHARS = 25;
 
 const REASONS = [
   {
-    id: "too_expensive",
+    id: "TOO_EXPENSIVE",
     label: "Too expensive",
     subQuestion: "What would be the maximum you would be willing to pay?",
     kind: "price" as const,
   },
   {
-    id: "not_helpful",
+    id: "PLATFORM_NOT_HELPFUL",
     label: "Platform not helpful",
     subQuestion: "What can we change to make the platform more helpful?",
     kind: "text" as const,
   },
   {
-    id: "not_relevant",
+    id: "NOT_ENOUGH_RELEVANT_JOB",
     label: "Not enough relevant jobs",
     subQuestion: "In which way can we make the jobs more relevant?",
     kind: "text" as const,
   },
   {
-    id: "not_to_move",
+    id: "DECIDED_NOT_TO_MOVE",
     label: "Decided not to move",
     subQuestion: "What changed for you to decide to not move?",
     kind: "text" as const,
   },
   {
-    id: "other",
+    id: "OTHER",
     label: "Other",
     subQuestion: "What would have helped you the most?",
     kind: "text" as const,
@@ -117,6 +117,10 @@ export default function CancellationReason() {
         What’s the main reason for cancelling?
       </h2>
 
+      <p className="font-medium text-gray-700 mb-4">
+        Please take a minute to let us know why:
+      </p>
+
       {!selected && (
         <ul className="space-y-3">
           {REASONS.map((r) => (
@@ -144,8 +148,8 @@ export default function CancellationReason() {
         <div className="mt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <span className="inline-block h-5 w-5 rounded-full border-2 border-gray-600 relative">
-                <span className="absolute inset-1 rounded-full bg-gray-600" />
+              <span className="inline-block h-5 w-5 rounded-full border-2 border-gray-800 relative bg-gray-800">
+                <span className="absolute inset-1 rounded-full bg-white" />
               </span>
               <span className="text-base text-gray-900 font-medium capitalize ml-1">
                 {selected.label}
@@ -163,7 +167,7 @@ export default function CancellationReason() {
 
           <div className="mt-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {selected.subQuestion} <span className="text-red-500">*</span>
+              {selected.subQuestion} <span className="text-gray-500">*</span>
             </label>
 
             {selected.kind === "price" ? (
@@ -187,6 +191,13 @@ export default function CancellationReason() {
               </div>
             ) : (
               <div className="relative">
+                <div className="text-red-600 mt-2 mb-2">
+                  <span className=" whitespace-nowrap">
+                    Please enter at least 25 characters so we can understand
+                    your feedback <span>*</span>
+                  </span>
+                </div>
+
                 <textarea
                   rows={6}
                   placeholder="Type your feedback here…"
@@ -194,10 +205,11 @@ export default function CancellationReason() {
                   onChange={(e) =>
                     updateStill("step2", "additionalReason", e.target.value)
                   }
-                  className="w-full text-gray-500 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500"
+                  className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm md:text-base text-gray-700 outline-none transition duration-200 ease-in-out focus:border-gray-900"
                 />
-                <div className="pointer-events-none absolute bottom-2 right-3 text-xs text-gray-500 bg-white/80 rounded px-1">
-                  {value.additionalReason.trim().length}/{MIN_CHARS}
+                <div className="pointer-events-none select-none absolute bottom-3 right-3 text-xs text-gray-500 bg-white/80 backdrop-blur rounded px-1">
+                  Min {MIN_CHARS} characters (
+                  {value.additionalReason?.trim().length}/{MIN_CHARS})
                 </div>
               </div>
             )}

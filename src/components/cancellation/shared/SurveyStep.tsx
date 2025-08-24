@@ -106,7 +106,7 @@ export default function SurveyStep<TValues extends Record<string, string>>({
                         "border transition-colors",
                         checked
                           ? "bg-[#8952fc] text-white border-[#8952fc]"
-                          : "border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200",
+                          : "border-gray-300 bg-gray-200 text-gray-700 hover:bg-gray-300",
                       ].join(" ")}
                     >
                       {opt}

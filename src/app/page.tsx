@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CancelSubscriptionModal from "../components/cancellation-modal";
+import CancelSubscriptionModal from "../components/cancellation";
 
 // Mock user data for UI display
 const mockUser = {

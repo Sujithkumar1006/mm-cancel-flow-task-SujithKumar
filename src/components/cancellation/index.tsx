@@ -11,6 +11,7 @@ import {
   CancellationFlowProvider,
   useCancellationFlowContext,
 } from "./shared/CancellationFlowContext";
+import { VARIANT_VALUES } from "./constant";
 
 function ModalBody() {
   const {
@@ -23,8 +24,6 @@ function ModalBody() {
     totalSteps,
     displayStep,
     goBack,
-    setSubSteps,
-    setModalProps,
     closeModal,
   } = useCancellationFlowContext();
 
@@ -35,14 +34,20 @@ function ModalBody() {
     visaHelp: jobFoundValue.step3?.visaHelp,
     downsellAccepted,
   });
-  console.log("sdf", currentStep);
+
+  const hideBackButton =
+    currentStep === FormSteps.NO_SELECTION ||
+    subSteps === 4 ||
+    (currentStep === FormSteps.NOT_FOUND &&
+      variant === VARIANT_VALUES.B &&
+      downsellAccepted);
   return (
     <Modal
       isOpen={true}
       onClose={closeModal}
       title={modalProps.title}
       size="xxl"
-      showBackButton={currentStep !== FormSteps.NO_SELECTION && subSteps !== 4}
+      showBackButton={!hideBackButton}
       onBack={goBack}
       currentStep={modalProps?.showSteps ? displayStep : 0}
       totalSteps={modalProps?.showSteps ? totalSteps : 0}

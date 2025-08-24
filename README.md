@@ -20,43 +20,6 @@ Two main paths:
 
 > Variant assignment happens once per cancellation (server-side RNG), stored in the `cancellations` table, and reused on return visits.
 
----
-
-## Folder structure
-
-src/components/cancellation/
-CancelSubscriptionModal.tsx
-JobStatusStep.tsx
-constant.ts
-
-shared/
-CancellationFlowContext.tsx
-flowUtils.ts
-formShapes.ts
-types.ts
-useFormState.ts
-useCancellationFlow.ts
-
-job-found/
-JobFoundFlow.tsx
-SurveyEmployment.tsx
-Feedback.tsx
-VisaHelp.tsx
-VisaPartner.tsx
-
-still-looking/
-StillLookingFlow.tsx
-DownSellOffer.tsx
-SurveyFeedback.tsx
-CancellationReason.tsx
-DownSellAccept.tsx
-FinalConfirm.tsx
-
-src/components/ui/Modal.tsx
-src/services/cancellationService.ts
-
----
-
 ## Data model
 
 - **subscriptions**
@@ -66,8 +29,8 @@ src/services/cancellationService.ts
   - `user_id`, `subscription_id`
   - `downsell_variant`, `reason`, `accepted_downsell`
 - **cancellation_surveys**
-  - Linked 1:1 with cancellations
-  - Stores survey answers
+  - `FOUND_THROUGH`, `ROLES_APPLIED`, `COMPANIES_EMAILED`
+  - `INTERVIEWS`, `VISA_HELP`, `VISA_TYPE`, `FEEDBACK`
 
 Row-Level Security is enabled with `auth.uid()` checks.
 
@@ -84,13 +47,12 @@ Row-Level Security is enabled with `auth.uid()` checks.
 
 ## Assumptions
 
-1. Once cancellation flow is completed (cancelled or accepted downsell), the **Cancel Migrate Mate** button will **not be shown again** for that subscription.
-2. Only one active cancellation per subscription.
+1. Once cancellation flow is completed (cancelled or accepted downsell), the **Cancel Migrate Mate** button will **be shown again** for that subscription because we are using mock data we are showing the button.
+2. Only one active cancellation per subscription(Currently it is not handled as the flow for existing cancellation design is not provided).
 3. Downsell discount is fixed (`COMMON_DISCOUNT_AMOUNT`, currently $10).
 4. Price changes apply from the next billing cycle (billing backend is responsible).
-5. Users can still reactivate before the end of their billing period.
-6. Copy, survey questions and options are static.
-7. No analytics or notifications included, can be added later.
+5. Copy, survey questions and options are static.(Can be made dynamic in future)
+6. No analytics or notifications included, can be added later.
 
 ---
 
@@ -120,8 +82,6 @@ Exit mid-survey shows confirm alert
 Final screens hide the back button
 
 Future improvements
-
-Toasts for errors and confirmations
 
 Analytics events for flow start, downsell, completion
 

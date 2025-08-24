@@ -1,6 +1,6 @@
 "use client";
 
-import SurveyStep from "@/components/cancellation-modal/shared/SurveyStep";
+import SurveyStep from "@/components/cancellation/shared/SurveyStep";
 import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
 import { VARIANT_VALUES, COMMON_DISCOUNT_AMOUNT } from "../constant";
 import type { SurveyQuestion, SurveyFeedbackValues } from "../shared/types";
@@ -36,6 +36,14 @@ export default function SurveyFeedback() {
     monthlyPrice,
     decideDownsell,
   } = useCancellationFlowContext();
+
+  const handleBackForVariant = () => {
+    if (variant === VARIANT_VALUES.A) {
+      
+    } else {
+      goBack();
+    }
+  };
 
   const currentPrice = Number(monthlyPrice) || 0;
   const discounted = Math.max(0, currentPrice - COMMON_DISCOUNT_AMOUNT);

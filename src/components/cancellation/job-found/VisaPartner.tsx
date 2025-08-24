@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { VISA_HELP } from "../constant";
 import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
+import Image from "next/image";
 
 type Contact = {
   name?: string;
@@ -24,9 +25,9 @@ export default function VisaPartner() {
   }, [setModalProps]);
 
   const contact: Contact = {
-    name: "Mihailo Basic",
-    email: "mihailo@migratemate.co",
-    avatarSrc: undefined,
+    name: "Mihailo Bozic",
+    email: "<mihailo@migratemate.co>",
+    avatarSrc: "/images/mihailo-profile.jpeg",
   };
 
   return (
@@ -75,14 +76,9 @@ function ContactCard({
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-5 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center relative">
           {avatarSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={avatarSrc}
-              alt={name}
-              className="h-full w-full object-cover"
-            />
+            <Image src={avatarSrc} alt={name} priority fill sizes="40px" />
           ) : (
             <span className="text-sm font-semibold text-gray-600">
               {initials(name)}

@@ -1,6 +1,6 @@
 "use client";
 
-import SurveyStep from "@/components/cancellation-modal/shared/SurveyStep";
+import SurveyStep from "@/components/cancellation/shared/SurveyStep";
 import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
 import type { JobFoundStep1, SurveyQuestion } from "../shared/types";
 

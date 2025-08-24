@@ -56,7 +56,7 @@ export default function Feedback() {
             }
             rows={6}
             placeholder="Type your feedback here…"
-            className="w-full resize-none rounded-lg text-gray-500 border border-gray-300 bg-white px-4 py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+            className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm md:text-base text-gray-700 outline-none transition duration-200 ease-in-out focus:border-gray-900"
             aria-label="Feedback"
             aria-required="true"
           />
