@@ -192,7 +192,7 @@ export default function CancellationReason() {
             ) : (
               <div className="relative">
                 <div className="text-red-600 mt-2 mb-2">
-                  <span className=" whitespace-nowrap">
+                  <span className=" md:whitespace-nowrap">
                     Please enter at least 25 characters so we can understand
                     your feedback <span>*</span>
                   </span>
