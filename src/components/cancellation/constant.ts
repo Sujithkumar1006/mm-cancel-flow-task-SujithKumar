@@ -21,6 +21,11 @@ export const DEFAULT_STILL_LOOKING = {
   step2: { reason: "", additionalReason: "" },
 };
 
+export const DEFAULT_MODAL_VALUES = {
+  title: "Subscription Cancellation",
+  showSteps: true,
+};
+
 export const JOB_FOUND_STEPS = {
   STEP1: 1,
   STEP2: 2,

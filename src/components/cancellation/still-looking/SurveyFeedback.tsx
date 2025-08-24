@@ -1,12 +1,9 @@
 "use client";
 
 import SurveyStep from "@/components/cancellation-modal/shared/SurveyStep";
-import { VARIANT_VALUES } from "../constant";
-import {
-  SurveyQuestion,
-  SurveyFeedbackProps,
-  SurveyFeedbackValues,
-} from "../shared/types";
+import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
+import { VARIANT_VALUES, COMMON_DISCOUNT_AMOUNT } from "../constant";
+import type { SurveyQuestion, SurveyFeedbackValues } from "../shared/types";
 
 const QUESTIONS: SurveyQuestion[] = [
   {
@@ -29,34 +26,42 @@ const QUESTIONS: SurveyQuestion[] = [
   },
 ];
 
-export default function SurveyFeedback({
-  value,
-  onChange,
-  onNext,
-  onBack,
-  extraAction,
-  variant,
-}: SurveyFeedbackProps) {
+export default function SurveyFeedback() {
+  const {
+    stillLookingForm,
+    updateStill,
+    setSubSteps,
+    goBack,
+    variant,
+    monthlyPrice,
+    decideDownsell,
+  } = useCancellationFlowContext();
+
+  const currentPrice = Number(monthlyPrice) || 0;
+  const discounted = Math.max(0, currentPrice - COMMON_DISCOUNT_AMOUNT);
+  const discountPercent = currentPrice
+    ? Math.round((COMMON_DISCOUNT_AMOUNT / currentPrice) * 100)
+    : 0;
+
   return (
     <SurveyStep<SurveyFeedbackValues>
       title="Help us understand how you were using Migrate Mate."
       questions={QUESTIONS}
-      value={value}
-      onChange={onChange}
-      onNext={onNext}
-      onBack={onBack}
+      value={stillLookingForm.step1}
+      onChange={(field, value) => updateStill("step1", field, value)}
+      onNext={() => setSubSteps(3 as any)}
+      onBack={goBack}
       continueLabel="Continue"
       extraAction={
         variant === VARIANT_VALUES.B ? (
           <button
             type="button"
-            onClick={extraAction.action}
+            onClick={() => decideDownsell(true)}
             className="mt-4 w-full rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white hover:bg-green-700 transition-colors"
           >
-            Get {extraAction.discountPercent} % offer | ${" "}
-            {extraAction.discounted}{" "}
-            <span className="line-through text-xs">
-              {extraAction.currentPrice}
+            Get {discountPercent}% offer | ${discounted.toFixed(2)}{" "}
+            <span className="line-through text-xs ml-1">
+              ${currentPrice.toFixed(2)}
             </span>
           </button>
         ) : null

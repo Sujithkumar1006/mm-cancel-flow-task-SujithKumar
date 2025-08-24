@@ -1,54 +1,67 @@
 "use client";
+
 import { useEffect } from "react";
 import { VISA_HELP } from "../constant";
-import { VisaPartnerProps, Contact } from "../shared/types";
+import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
 
-export default function VisaPartner({
-  variant,
-  onFinish,
-  contact,
-  setModalProps,
-}: VisaPartnerProps) {
-  useEffect(() => {
-    setModalProps({ title: "Subscription Cancelled" });
-  }, []);
+type Contact = {
+  name?: string;
+  email?: string;
+  avatarSrc?: string;
+};
+
+export default function VisaPartner() {
+  const { jobFoundValue, setModalProps, closeModal } =
+    useCancellationFlowContext();
+
+  // Source of truth for whether we show contact card
+  const variant = jobFoundValue.step3?.visaHelp;
   const showContact = variant === VISA_HELP.YES;
 
+  // Set final modal title and hide step counter
+  useEffect(() => {
+    setModalProps({ title: "Subscription Cancelled", showSteps: false });
+  }, [setModalProps]);
+
+  const contact: Contact = {
+    name: "Mihailo Basic",
+    email: "mihailo@migratemate.co",
+    avatarSrc: undefined,
+  };
+
   return (
-    <>
-      <div className="flex-[1.25]">
-        <h2 className="text-2xl leading-8 md:text-4xl md:leading-[44px] font-semibold text-gray-800">
-          {showContact
-            ? "Your cancellation’s all sorted, mate, no more charges."
-            : "All done, your cancellation’s been processed."}
-        </h2>
+    <div className="flex-[1.25]">
+      <h2 className="text-2xl leading-8 md:text-4xl md:leading-[44px] font-semibold text-gray-800">
+        {showContact
+          ? "Your cancellation’s all sorted, mate, no more charges."
+          : "All done, your cancellation’s been processed."}
+      </h2>
 
-        {showContact ? (
-          <div className="mt-6">
-            <ContactCard
-              name={contact?.name ?? "Mihailo Basic"}
-              email={contact?.email ?? "mihailo@migratemate.co"}
-              avatarSrc={contact?.avatarSrc}
-            />
-          </div>
-        ) : (
-          <p className="mt-4 text-sm md:text-xl text-gray-700 font-medium">
-            We’re stoked to hear you’ve landed a job and sorted your visa. Big
-            congrats from the team! 🎉
-          </p>
-        )}
-
-        <div className="flex flex-col space-y-3 mt-8 gap-4 pt-5 border-t border-gray-300">
-          <button
-            type="button"
-            onClick={onFinish}
-            className="w-full px-4 py-3 rounded-lg text-base font-semibold transition-colors bg-[#8952fc] text-white hover:bg-[#7b40fc]"
-          >
-            Finish
-          </button>
+      {showContact ? (
+        <div className="mt-6">
+          <ContactCard
+            name={contact.name ?? "Mihailo Basic"}
+            email={contact.email ?? "mihailo@migratemate.co"}
+            avatarSrc={contact.avatarSrc}
+          />
         </div>
+      ) : (
+        <p className="mt-4 text-sm md:text-xl text-gray-700 font-medium">
+          We’re stoked to hear you’ve landed a job and sorted your visa. Big
+          congrats from the team! 🎉
+        </p>
+      )}
+
+      <div className="flex flex-col space-y-3 mt-8 gap-4 pt-5 border-t border-gray-300">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="w-full px-4 py-3 rounded-lg text-base font-semibold transition-colors bg-[#8952fc] text-white hover:bg-[#7b40fc]"
+        >
+          Finish
+        </button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -64,6 +77,7 @@ function ContactCard({
       <div className="flex items-start gap-3">
         <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
           {avatarSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarSrc}
               alt={name}

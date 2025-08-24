@@ -1,5 +1,6 @@
 "use client";
-import { VisaHelpProps } from "../shared/types";
+
+import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
 
 const COPY: Record<
   string,
@@ -34,13 +35,12 @@ const COPY: Record<
   },
 };
 
-export default function VisaHelp({
-  value,
-  onChange,
-  onNext,
-  onBack,
-  source,
-}: VisaHelpProps) {
+export default function VisaHelp() {
+  const { jobFoundValue, updateJobFound, setSubSteps, goBack, submit } =
+    useCancellationFlowContext();
+
+  // source is normalized to "yes" | "no" in SurveyEmployment
+  const source = (jobFoundValue.step1?.foundThrough ?? "no") as "yes" | "no";
   const {
     title,
     subtitle,
@@ -50,41 +50,44 @@ export default function VisaHelp({
     additionalTitle = "",
   } = COPY[source];
 
-  const answer = value.visaHelp;
-  const visaType = value.visaType;
+  const answer = jobFoundValue.step3?.visaHelp ?? "";
+  const visaType = jobFoundValue.step3?.visaType ?? "";
 
   const showVisaInput = source === "no" || answer === "yes";
   const isValid =
-    (askYesNo ? !!answer : true) && showVisaInput
-      ? visaType.trim().length > 0
-      : !!answer;
+    (askYesNo ? !!answer : true) &&
+    (showVisaInput ? visaType.trim().length > 0 : !!answer);
+
+  const handleNext = async () => {
+    await submit(); // persist survey so far
+    setSubSteps(4 as any); // move to final step in Job Found flow
+  };
 
   return (
     <div className="flex-[1.25]">
       <div className="flex mb-2 md:hidden flex-1 md:justify-start">
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-            aria-label="Go back"
+        <button
+          onClick={goBack}
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          aria-label="Go back"
+        >
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back
-          </button>
-        )}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back
+        </button>
       </div>
+
       <h2 className="text-2xl leading-8 md:text-4xl md:leading-[44px] font-semibold text-gray-800 whitespace-pre-line">
         {title}
       </h2>
@@ -94,6 +97,7 @@ export default function VisaHelp({
           {additionalTitle}
         </h2>
       )}
+
       <p className="mt-4 text-sm md:text-base text-gray-700">{subtitle}</p>
 
       {askYesNo && (
@@ -105,8 +109,8 @@ export default function VisaHelp({
                   type="radio"
                   name="visa-help"
                   value="yes"
-                  checked={answer ? answer === "yes" : false}
-                  onChange={() => onChange("visaHelp", "yes")}
+                  checked={false}
+                  onChange={() => updateJobFound("step3", "visaHelp", "yes")}
                   className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-gray-500"
                 />
                 <span className="text-base text-gray-800">Yes</span>
@@ -116,8 +120,8 @@ export default function VisaHelp({
                   type="radio"
                   name="visa-help"
                   value="no"
-                  checked={answer ? answer === "no" : false}
-                  onChange={() => onChange("visaHelp", "no")}
+                  checked={false}
+                  onChange={() => updateJobFound("step3", "visaHelp", "no")}
                   className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-gray-500"
                 />
                 <span className="text-base text-gray-800">No</span>
@@ -135,7 +139,7 @@ export default function VisaHelp({
               </div>
               <button
                 type="button"
-                onClick={() => onChange("visaHelp", "")}
+                onClick={() => updateJobFound("step3", "visaHelp", "")}
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
                 Change
@@ -158,7 +162,9 @@ export default function VisaHelp({
             id="visa-type"
             type="text"
             value={visaType}
-            onChange={(e) => onChange("visaType", e.target.value)}
+            onChange={(e) =>
+              updateJobFound("step3", "visaType", e.target.value)
+            }
             placeholder="Enter visa type…"
             className="w-full rounded-md border text-gray-600 border-gray-300 px-3 py-2 text-sm md:text-base outline-none focus:ring-2 focus:ring-gray-500"
           />
@@ -169,15 +175,12 @@ export default function VisaHelp({
         <button
           type="button"
           disabled={!isValid}
-          onClick={onNext}
-          className={`
-              w-full px-4 py-3 rounded-lg text-base font-semibold transition-colors
-              ${
-                isValid
-                  ? "bg-red-600 text-white"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
-              }
-            `}
+          onClick={handleNext}
+          className={`w-full px-4 py-3 rounded-lg text-base font-semibold transition-colors ${
+            isValid
+              ? "bg-red-600 text-white"
+              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+          }`}
         >
           Continue
         </button>

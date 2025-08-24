@@ -1,17 +1,23 @@
-import { useEffect } from "react";
-import { DownSellAcceptProps } from "../shared/types";
+"use client";
 
-const DownSellAccept = ({
-  subscriptionEndDate,
-  newPrice,
-  onMount,
-  onCompletion,
-}: DownSellAcceptProps) => {
+import { useEffect, useMemo } from "react";
+import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
+import { COMMON_DISCOUNT_AMOUNT } from "../constant";
+
+export default function DownSellAccept() {
+  const { subscriptionEndDate, monthlyPrice, setModalProps, closeModal } =
+    useCancellationFlowContext();
+
+  // Set title and hide stepper on mount
   useEffect(() => {
-    onMount();
-  }, []);
-  const end = new Date(subscriptionEndDate);
-  const now = new Date();
+    setModalProps({ title: "Subscription Continued", showSteps: false });
+  }, [setModalProps]);
+
+  const end = useMemo(
+    () => new Date(subscriptionEndDate ?? new Date().toISOString()),
+    [subscriptionEndDate]
+  );
+  const now = useMemo(() => new Date(), []);
 
   const msLeft = Math.max(0, end.getTime() - now.getTime());
   const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
@@ -24,10 +30,8 @@ const DownSellAccept = ({
         year: "numeric",
       });
 
-  const priceStr =
-    typeof newPrice === "number" && !Number.isNaN(newPrice)
-      ? `$${newPrice.toFixed(2)}`
-      : "$—";
+  const newPrice = Math.max(0, (monthlyPrice ?? 0) - COMMON_DISCOUNT_AMOUNT);
+  const priceStr = Number.isFinite(newPrice) ? `$${newPrice.toFixed(2)}` : "$—";
 
   return (
     <div className="flex-[1.25]">
@@ -59,7 +63,7 @@ const DownSellAccept = ({
       <div className="flex flex-col space-y-3 m-5 gap-4 pt-5 border-t border-gray-300">
         <button
           type="button"
-          onClick={onCompletion}
+          onClick={closeModal}
           className="w-full px-4 py-3 rounded-lg text-base font-semibold bg-[#8952fc] text-white hover:bg-[#6e3cd6] transition-colors"
         >
           Land your dream role
@@ -67,6 +71,4 @@ const DownSellAccept = ({
       </div>
     </div>
   );
-};
-
-export default DownSellAccept;
+}

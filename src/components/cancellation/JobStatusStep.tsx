@@ -1,11 +1,13 @@
 import React from "react";
+import { useCancellationFlowContext } from "./shared/CancellationFlowContext";
 import { FormSteps } from "./shared/types";
 
 interface IJobStatusStep {
   setCurrentStep: (s: FormSteps) => void;
 }
 
-const JobStatusStep = ({ setCurrentStep }: IJobStatusStep) => {
+const JobStatusStep = () => {
+  const { start } = useCancellationFlowContext();
   return (
     <>
       <div className="flex-[1.25]">
@@ -26,14 +28,14 @@ const JobStatusStep = ({ setCurrentStep }: IJobStatusStep) => {
           <button
             className="w-full px-1 py-2 bg-white border-gray-300 border text-gray-700 rounded-lg font-semibold text-base"
             type="button"
-            onClick={() => setCurrentStep(FormSteps.FOUND_JOB)}
+            onClick={() => start(FormSteps.FOUND_JOB)}
           >
             Yes, I've found a job
           </button>
           <button
             className="w-full px-1 py-2 bg-white border-gray-300 border text-gray-700 rounded-lg font-semibold text-base"
             type="button"
-            onClick={() => setCurrentStep(FormSteps.NOT_FOUND)}
+            onClick={() => start(FormSteps.NOT_FOUND)}
           >
             Not yet - I'm still looking
           </button>

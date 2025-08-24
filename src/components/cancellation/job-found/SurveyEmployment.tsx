@@ -1,11 +1,8 @@
 "use client";
 
 import SurveyStep from "@/components/cancellation-modal/shared/SurveyStep";
-import {
-  JobFoundStep1,
-  SurveyEmploymentProps,
-  SurveyQuestion,
-} from "../shared/types";
+import { useCancellationFlowContext } from "../shared/CancellationFlowContext";
+import type { JobFoundStep1, SurveyQuestion } from "../shared/types";
 
 const QUESTIONS: SurveyQuestion[] = [
   {
@@ -34,20 +31,18 @@ const QUESTIONS: SurveyQuestion[] = [
   },
 ];
 
-export default function SurveyEmployment({
-  value,
-  onChange,
-  onNext,
-  onBack,
-}: SurveyEmploymentProps) {
+export default function SurveyEmployment() {
+  const { jobFoundValue, updateJobFound, setSubSteps, goBack } =
+    useCancellationFlowContext();
+
   return (
     <SurveyStep<JobFoundStep1>
       title="Congrats on the new role! 🎉"
       questions={QUESTIONS}
-      value={value}
-      onChange={onChange}
-      onNext={onNext}
-      onBack={onBack}
+      value={jobFoundValue.step1}
+      onChange={(field, value) => updateJobFound("step1", field, value)}
+      onNext={() => setSubSteps(2)}
+      onBack={goBack}
       continueLabel="Continue"
       normalizeOption={(label) =>
         label === "Yes" || label === "No" ? label.toLowerCase() : label
